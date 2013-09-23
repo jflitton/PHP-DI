@@ -21,13 +21,14 @@ use Exception;
 use InvalidArgumentException;
 use ProxyManager\Factory\LazyLoadingValueHolderFactory;
 use ProxyManager\GeneratorStrategy\EvaluatingGeneratorStrategy;
+use Psr\DI\ContainerInterface;
 
 /**
  * Dependency Injection Container
  *
  * @author Matthieu Napoli <matthieu@mnapoli.fr>
  */
-class Container
+class Container implements ContainerInterface
 {
 
     /**
@@ -138,6 +139,22 @@ class Container
         }
 
         throw new NotFoundException("No entry or class found for '$name'");
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function has($name)
+    {
+        if (!is_string($name)) {
+            throw new InvalidArgumentException("The name parameter must be of type string");
+        }
+
+        if (array_key_exists($name, $this->entries) || $this->definitionManager->getDefinition($name)) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
