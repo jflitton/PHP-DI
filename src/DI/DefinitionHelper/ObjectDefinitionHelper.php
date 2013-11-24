@@ -54,40 +54,87 @@ class ObjectDefinitionHelper implements DefinitionHelper
      */
     private $methods = array();
 
+    /**
+     * @param string|null $className You can overridde the class name to use for this entry.
+     */
     public function __construct($className = null)
     {
         $this->className = $className;
     }
 
+    /**
+     * Mark the object as lazy so that it is loaded only when used.
+     *
+     * @return ObjectDefinitionHelper
+     */
     public function lazy()
     {
         $this->lazy = true;
+
         return $this;
     }
 
+    /**
+     * Defines the scope of the object.
+     *
+     * @param Scope $scope
+     *
+     * @return ObjectDefinitionHelper
+     */
     public function withScope(Scope $scope)
     {
         $this->scope = $scope;
+
         return $this;
     }
 
-    public function withConstructor()
+    /**
+     * Defines the arguments to use with the constructor.
+     *
+     * Usage example: ->withConstructor('param1', 'param2', 'param3')
+     *
+     * @param mixed $_,... List of parameters to use for calling the constructor.
+     *
+     * @return ObjectDefinitionHelper
+     */
+    public function withConstructor($_ = null)
     {
         $this->constructor = func_get_args();
+
         return $this;
     }
 
+    /**
+     * Defines the value to set to a property.
+     *
+     * @param string $property
+     * @param mixed  $value
+     *
+     * @return ObjectDefinitionHelper
+     */
     public function withProperty($property, $value)
     {
         $this->properties[$property] = $value;
+
         return $this;
     }
 
-    public function withMethod($method)
+    /**
+     * Defines a method to call (setter) and its arguments.
+     *
+     * Usage example: ->withMethod('myMethod', 'param1', 'param2', 'param3')
+     *
+     * @param string $method Method to call.
+     * @param mixed  $_,...  List of parameters to use for calling the method.
+     *
+     * @return ObjectDefinitionHelper
+     */
+    public function withMethod($method, $_ = null)
     {
         $args = func_get_args();
         array_shift($args);
         $this->methods[$method] = $args;
+
         return $this;
     }
 
