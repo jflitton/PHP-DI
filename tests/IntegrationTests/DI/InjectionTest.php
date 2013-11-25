@@ -42,6 +42,7 @@ class InjectionTest extends \PHPUnit_Framework_TestCase
         $containerReflection = $builder->build();
         $containerReflection->addDefinitions(array(
             'foo'                 => 'bar',
+            'IntegrationTests\DI\Fixtures\Class1' => Entry::object()->withScope(Scope::PROTOTYPE()),
             'IntegrationTests\DI\Fixtures\Interface1' => Entry::object('IntegrationTests\DI\Fixtures\Implementation1'),
             'namedDependency'     => Entry::object('IntegrationTests\DI\Fixtures\Class2'),
             'IntegrationTests\DI\Fixtures\LazyDependency' => Entry::object()->lazy(),
@@ -109,6 +110,28 @@ class InjectionTest extends \PHPUnit_Framework_TestCase
             array(self::DEFINITION_ANNOTATIONS, $containerAnnotations),
             array(self::DEFINITION_ARRAY, $containerArray),
             array(self::DEFINITION_PHP, $containerPHP),
+        );
+    }
+
+    /**
+     * @dataProvider containerProvider
+     */
+    public function testContainerGetSingleton($type, Container $container)
+    {
+        $this->assertSame(
+            $container->get('IntegrationTests\DI\Fixtures\Class2'),
+            $container->get('IntegrationTests\DI\Fixtures\Class2')
+        );
+    }
+
+    /**
+     * @dataProvider containerProvider
+     */
+    public function testContainerGetPrototype($type, Container $container)
+    {
+        $this->assertNotSame(
+            $container->get('IntegrationTests\DI\Fixtures\Class1'),
+            $container->get('IntegrationTests\DI\Fixtures\Class1')
         );
     }
 
