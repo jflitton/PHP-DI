@@ -29,7 +29,8 @@ class InjectionTest extends \PHPUnit_Framework_TestCase
     const DEFINITION_PHP = 4;
 
     /**
-     * PHPUnit data provider: generates container configurations for running the same tests for each configuration possible
+     * PHPUnit data provider: generates container configurations for running the same tests
+     * for each possible configuration
      * @return array
      */
     public static function containerProvider()
@@ -94,8 +95,11 @@ class InjectionTest extends \PHPUnit_Framework_TestCase
         );
         $containerPHP->set('IntegrationTests\DI\Fixtures\Class2', Entry::object());
         $containerPHP->set('IntegrationTests\DI\Fixtures\Implementation1', Entry::object());
-        $containerPHP->set('IntegrationTests\DI\Fixtures\Interface1', Entry::object('IntegrationTests\DI\Fixtures\Implementation1')
-            ->withScope(Scope::SINGLETON()));
+        $containerPHP->set(
+            'IntegrationTests\DI\Fixtures\Interface1',
+            Entry::object('IntegrationTests\DI\Fixtures\Implementation1')
+                ->withScope(Scope::SINGLETON())
+        );
         $containerPHP->set('namedDependency', Entry::object('IntegrationTests\DI\Fixtures\Class2'));
         $containerPHP->set('IntegrationTests\DI\Fixtures\LazyDependency', Entry::object()->lazy());
         $containerPHP->set('alias', Entry::link('namedDependency'));
