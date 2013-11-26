@@ -9,6 +9,8 @@
 
 namespace UnitTests\DI;
 
+use DI\Compiler\CompiledContainer;
+use DI\Container;
 use DI\ContainerBuilder;
 use UnitTests\DI\Fixtures\FakeContainer;
 
@@ -77,6 +79,18 @@ class ContainerBuilderTest extends \PHPUnit_Framework_TestCase
         $container = $builder->build();
 
         $this->assertSame($otherContainer, $container->wrapperContainer);
+    }
+
+    public function testCompiledContainer()
+    {
+        $builder = new ContainerBuilder();
+        $builder->compileContainer(__DIR__ . '/Fixtures/writableDirectory');
+
+        $container = $builder->build();
+
+        // TODO do more tests
+        $this->assertTrue($container instanceof Container);
+        $this->assertTrue($container instanceof CompiledContainer);
     }
 
     public function testFluentInterface()

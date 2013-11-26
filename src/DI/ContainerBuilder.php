@@ -9,6 +9,13 @@
 
 namespace DI;
 
+use DI\Compiler\Backend\FileBackend;
+use DI\Compiler\CompiledContainer;
+use DI\Compiler\Compiler;
+use DI\Compiler\DefinitionCompiler\AliasDefinitionCompiler;
+use DI\Compiler\DefinitionCompiler\CallableDefinitionCompiler;
+use DI\Compiler\DefinitionCompiler\ClassDefinitionCompiler;
+use DI\Compiler\DefinitionCompiler\ValueDefinitionCompiler;
 use DI\Definition\DefinitionManager;
 use Doctrine\Common\Cache\Cache;
 use InvalidArgumentException;
@@ -71,6 +78,12 @@ class ContainerBuilder
     private $wrapperContainer;
 
     /**
+     * Directory in which to store the compiled container. If null, no compilation.
+     * @var string|null
+     */
+    private $compilationPath;
+
+    /**
      * Build a container configured for the dev environment.
      *
      * @return Container
@@ -106,8 +119,28 @@ class ContainerBuilder
         // Proxy factory
         $proxyFactory = $this->buildProxyFactory();
 
-        $containerClass = $this->containerClass;
+        // Compiled container
+        if ($this->compilationPath) {
+            $backend = new FileBackend($this->compilationPath, $proxyFactory);
+            $definitionCompilers = array(
+                'DI\Definition\ValueDefinition'    => new ValueDefinitionCompiler(),
+                'DI\Definition\CallableDefinition' => new CallableDefinitionCompiler(),
+                'DI\Definition\AliasDefinition'    => new AliasDefinitionCompiler(),
+                'DI\Definition\ClassDefinition'    => new ClassDefinitionCompiler(),
+            );
+            $compiler = new Compiler($backend, $definitionCompilers);
 
+            return new CompiledContainer(
+                $definitionManager,
+                $proxyFactory,
+                $compiler,
+                $backend,
+                $this->wrapperContainer
+            );
+        }
+
+        // Classic container
+        $containerClass = $this->containerClass;
         return new $containerClass($definitionManager, $proxyFactory, $this->wrapperContainer);
     }
 
@@ -200,6 +233,16 @@ class ContainerBuilder
         $this->wrapperContainer = $otherContainer;
 
         return $this;
+    }
+
+    /**
+     * Enables the compilation of the container for best performances.
+     *
+     * @param string $directory Directory in which to store the compiled container. The directory must be writable.
+     */
+    public function compileContainer($directory)
+    {
+        $this->compilationPath = $directory;
     }
 
     /**
