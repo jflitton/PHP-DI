@@ -36,4 +36,8 @@ return array(
             ->lazy(),
 
     'alias' => Entry::link('namedDependency'),
+
+    'factory' => Entry::factory(function () {
+        return 42;
+    }),
 );

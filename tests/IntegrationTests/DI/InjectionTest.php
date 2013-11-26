@@ -60,6 +60,9 @@ class InjectionTest extends \PHPUnit_Framework_TestCase
             'namedDependency'     => Entry::object('IntegrationTests\DI\Fixtures\Class2'),
             'IntegrationTests\DI\Fixtures\LazyDependency' => Entry::object()->lazy(),
             'alias'               => Entry::link('namedDependency'),
+            'factory'             => Entry::factory(function () {
+                return 42;
+            }),
         ));
 
         // Test with a container using annotations and reflection
@@ -72,6 +75,9 @@ class InjectionTest extends \PHPUnit_Framework_TestCase
             'IntegrationTests\DI\Fixtures\Interface1' => Entry::object('IntegrationTests\DI\Fixtures\Implementation1'),
             'namedDependency' => Entry::object('IntegrationTests\DI\Fixtures\Class2'),
             'alias'           => Entry::link('namedDependency'),
+            'factory'             => Entry::factory(function () {
+                return 42;
+            }),
         ));
 
         // Test with a container using array configuration
@@ -117,6 +123,9 @@ class InjectionTest extends \PHPUnit_Framework_TestCase
         $containerPHP->set('namedDependency', Entry::object('IntegrationTests\DI\Fixtures\Class2'));
         $containerPHP->set('IntegrationTests\DI\Fixtures\LazyDependency', Entry::object()->lazy());
         $containerPHP->set('alias', Entry::link('namedDependency'));
+        $containerPHP->set('factory', Entry::factory(function () {
+            return 42;
+        }));
 
         // Test with a compiled container using reflection
         $builder = new ContainerBuilder();
@@ -131,6 +140,9 @@ class InjectionTest extends \PHPUnit_Framework_TestCase
             'namedDependency'     => Entry::object('IntegrationTests\DI\Fixtures\Class2'),
             'IntegrationTests\DI\Fixtures\LazyDependency' => Entry::object()->lazy(),
             'alias'               => Entry::link('namedDependency'),
+            'factory'             => Entry::factory(function () {
+                return 42;
+            }),
         ));
 
         // Test with a compiled container using annotations and reflection
@@ -143,6 +155,9 @@ class InjectionTest extends \PHPUnit_Framework_TestCase
             'IntegrationTests\DI\Fixtures\Interface1' => Entry::object('IntegrationTests\DI\Fixtures\Implementation1'),
             'namedDependency' => Entry::object('IntegrationTests\DI\Fixtures\Class2'),
             'alias'           => Entry::link('namedDependency'),
+            'factory'             => Entry::factory(function () {
+                return 42;
+            }),
         ));
 
         // Test with a compiled container using array configuration
@@ -188,6 +203,9 @@ class InjectionTest extends \PHPUnit_Framework_TestCase
         $compiledContainerPHP->set('namedDependency', Entry::object('IntegrationTests\DI\Fixtures\Class2'));
         $compiledContainerPHP->set('IntegrationTests\DI\Fixtures\LazyDependency', Entry::object()->lazy());
         $compiledContainerPHP->set('alias', Entry::link('namedDependency'));
+        $compiledContainerPHP->set('factory', Entry::factory(function () {
+            return 42;
+        }));
 
         return array(
             array(self::DEFINITION_REFLECTION, $containerReflection),
@@ -365,6 +383,14 @@ class InjectionTest extends \PHPUnit_Framework_TestCase
         $class3_1 = $container->get('IntegrationTests\DI\Fixtures\Interface1');
         $class3_2 = $container->get('IntegrationTests\DI\Fixtures\Interface1');
         $this->assertSame($class3_1, $class3_2);
+    }
+
+    /**
+     * @dataProvider containerProvider
+     */
+    public function testFactory($type, Container $container)
+    {
+        $this->assertEquals(42, $container->get('factory'));
     }
 
     /**
