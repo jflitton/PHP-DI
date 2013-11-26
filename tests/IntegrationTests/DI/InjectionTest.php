@@ -28,6 +28,9 @@ class InjectionTest extends \PHPUnit_Framework_TestCase
     const DEFINITION_ARRAY = 2;
     const DEFINITION_PHP = 3;
     const DEFINITION_COMPILED_REFLECTION = 4;
+    const DEFINITION_COMPILED_ANNOTATIONS = 5;
+    const DEFINITION_COMPILED_ARRAY = 6;
+    const DEFINITION_COMPILED_PHP = 7;
 
     public function setUp()
     {
@@ -130,12 +133,71 @@ class InjectionTest extends \PHPUnit_Framework_TestCase
             'alias'               => Entry::link('namedDependency'),
         ));
 
+        // Test with a compiled container using annotations and reflection
+        $builder = new ContainerBuilder();
+        $builder->useReflection(true);
+        $builder->useAnnotations(true);
+        $compiledContainerAnnotations = $builder->build();
+        $compiledContainerAnnotations->addDefinitions(array(
+            'foo'             => 'bar',
+            'IntegrationTests\DI\Fixtures\Interface1' => Entry::object('IntegrationTests\DI\Fixtures\Implementation1'),
+            'namedDependency' => Entry::object('IntegrationTests\DI\Fixtures\Class2'),
+            'alias'           => Entry::link('namedDependency'),
+        ));
+
+        // Test with a compiled container using array configuration
+        $builder = new ContainerBuilder();
+        $builder->useReflection(false);
+        $builder->useAnnotations(false);
+        $compiledContainerArray = $builder->build();
+        $array = require __DIR__ . '/Fixtures/definitions.php';
+        $compiledContainerArray->addDefinitions($array);
+
+        // Test with a compiled container using PHP configuration
+        $builder = new ContainerBuilder();
+        $builder->useReflection(false);
+        $builder->useAnnotations(false);
+        $compiledContainerPHP = $builder->build();
+        $compiledContainerPHP->set('foo', 'bar');
+        $compiledContainerPHP->set(
+            'IntegrationTests\DI\Fixtures\Class1',
+            Entry::object()
+                ->withScope(Scope::PROTOTYPE())
+                ->withProperty('property1', Entry::link('IntegrationTests\DI\Fixtures\Class2'))
+                ->withProperty('property2', Entry::link('IntegrationTests\DI\Fixtures\Interface1'))
+                ->withProperty('property3', Entry::link('namedDependency'))
+                ->withProperty('property4', Entry::link('foo'))
+                ->withProperty('property5', Entry::link('IntegrationTests\DI\Fixtures\LazyDependency'))
+                ->withConstructor(
+                    Entry::link('IntegrationTests\DI\Fixtures\Class2'),
+                    Entry::link('IntegrationTests\DI\Fixtures\Interface1'),
+                    Entry::link('IntegrationTests\DI\Fixtures\LazyDependency')
+                )
+                ->withMethod('method1', Entry::link('IntegrationTests\DI\Fixtures\Class2'))
+                ->withMethod('method2', Entry::link('IntegrationTests\DI\Fixtures\Interface1'))
+                ->withMethod('method3', Entry::link('namedDependency'), Entry::link('foo'))
+                ->withMethod('method4', Entry::link('IntegrationTests\DI\Fixtures\LazyDependency'))
+        );
+        $compiledContainerPHP->set('IntegrationTests\DI\Fixtures\Class2', Entry::object());
+        $compiledContainerPHP->set('IntegrationTests\DI\Fixtures\Implementation1', Entry::object());
+        $compiledContainerPHP->set(
+            'IntegrationTests\DI\Fixtures\Interface1',
+            Entry::object('IntegrationTests\DI\Fixtures\Implementation1')
+                ->withScope(Scope::SINGLETON())
+        );
+        $compiledContainerPHP->set('namedDependency', Entry::object('IntegrationTests\DI\Fixtures\Class2'));
+        $compiledContainerPHP->set('IntegrationTests\DI\Fixtures\LazyDependency', Entry::object()->lazy());
+        $compiledContainerPHP->set('alias', Entry::link('namedDependency'));
+
         return array(
             array(self::DEFINITION_REFLECTION, $containerReflection),
             array(self::DEFINITION_ANNOTATIONS, $containerAnnotations),
             array(self::DEFINITION_ARRAY, $containerArray),
             array(self::DEFINITION_PHP, $containerPHP),
             array(self::DEFINITION_COMPILED_REFLECTION, $compiledContainerReflection),
+            array(self::DEFINITION_COMPILED_ANNOTATIONS, $compiledContainerAnnotations),
+            array(self::DEFINITION_COMPILED_ARRAY, $compiledContainerArray),
+            array(self::DEFINITION_COMPILED_PHP, $compiledContainerPHP),
         );
     }
 
