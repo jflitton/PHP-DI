@@ -10,7 +10,6 @@
 namespace UnitTests\DI\Compiler\DefinitionCompiler;
 
 use DI\Compiler\DefinitionCompiler\ClassDefinitionCompiler;
-use DI\Entry;
 
 /**
  * Tests the generation for classes marked as lazy
@@ -19,7 +18,7 @@ class ClassDefinitionCompilerProxyTest extends \PHPUnit_Framework_TestCase
 {
     public function testSimpleProxy()
     {
-        $entry = Entry::object('UnitTests\DI\Compiler\DefinitionCompiler\Fixtures\Class2')
+        $entry = \DI\object('UnitTests\DI\Compiler\DefinitionCompiler\Fixtures\Class2')
             ->lazy();
 
         $resolver = new ClassDefinitionCompiler();

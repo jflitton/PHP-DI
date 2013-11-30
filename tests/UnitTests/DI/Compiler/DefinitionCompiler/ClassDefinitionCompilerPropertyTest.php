@@ -10,7 +10,6 @@
 namespace UnitTests\DI\Compiler\DefinitionCompiler;
 
 use DI\Compiler\DefinitionCompiler\ClassDefinitionCompiler;
-use DI\Entry;
 use DI\Scope;
 
 /**
@@ -20,7 +19,7 @@ class ClassDefinitionCompilerPropertyTest extends \PHPUnit_Framework_TestCase
 {
     public function testPublicProperty()
     {
-        $entry = Entry::object('UnitTests\DI\Compiler\DefinitionCompiler\Fixtures\Class3')
+        $entry = \DI\object('UnitTests\DI\Compiler\DefinitionCompiler\Fixtures\Class3')
             ->withScope(Scope::PROTOTYPE())
             ->withProperty('publicProperty', 'foo');
 
@@ -38,7 +37,7 @@ PHP;
 
     public function testPrivateProperty()
     {
-        $entry = Entry::object('UnitTests\DI\Compiler\DefinitionCompiler\Fixtures\Class3')
+        $entry = \DI\object('UnitTests\DI\Compiler\DefinitionCompiler\Fixtures\Class3')
             ->withScope(Scope::PROTOTYPE())
             ->withProperty('privateProperty', 'foo');
 

@@ -134,12 +134,12 @@ class InjectionTest extends \PHPUnit_Framework_TestCase
         $compiledContainerReflection = $builder->build();
         $compiledContainerReflection->addDefinitions(array(
             'foo'                 => 'bar',
-            'IntegrationTests\DI\Fixtures\Class1'     => Entry::object()->withScope(Scope::PROTOTYPE()),
-            'IntegrationTests\DI\Fixtures\Interface1' => Entry::object('IntegrationTests\DI\Fixtures\Implementation1'),
-            'namedDependency'     => Entry::object('IntegrationTests\DI\Fixtures\Class2'),
-            'IntegrationTests\DI\Fixtures\LazyDependency' => Entry::object()->lazy(),
-            'alias'               => Entry::link('namedDependency'),
-            'factory'             => Entry::factory(function () {
+            'IntegrationTests\DI\Fixtures\Class1'     => \DI\object()->withScope(Scope::PROTOTYPE()),
+            'IntegrationTests\DI\Fixtures\Interface1' => \DI\object('IntegrationTests\DI\Fixtures\Implementation1'),
+            'namedDependency'     => \DI\object('IntegrationTests\DI\Fixtures\Class2'),
+            'IntegrationTests\DI\Fixtures\LazyDependency' => \DI\object()->lazy(),
+            'alias'               => \DI\link('namedDependency'),
+            'factory'             => \DI\factory(function () {
                 return 42;
             }),
         ));
@@ -151,10 +151,10 @@ class InjectionTest extends \PHPUnit_Framework_TestCase
         $compiledContainerAnnotations = $builder->build();
         $compiledContainerAnnotations->addDefinitions(array(
             'foo'             => 'bar',
-            'IntegrationTests\DI\Fixtures\Interface1' => Entry::object('IntegrationTests\DI\Fixtures\Implementation1'),
-            'namedDependency' => Entry::object('IntegrationTests\DI\Fixtures\Class2'),
-            'alias'           => Entry::link('namedDependency'),
-            'factory'             => Entry::factory(function () {
+            'IntegrationTests\DI\Fixtures\Interface1' => \DI\object('IntegrationTests\DI\Fixtures\Implementation1'),
+            'namedDependency' => \DI\object('IntegrationTests\DI\Fixtures\Class2'),
+            'alias'           => \DI\link('namedDependency'),
+            'factory'         => \DI\factory(function () {
                 return 42;
             }),
         ));
@@ -175,34 +175,34 @@ class InjectionTest extends \PHPUnit_Framework_TestCase
         $compiledContainerPHP->set('foo', 'bar');
         $compiledContainerPHP->set(
             'IntegrationTests\DI\Fixtures\Class1',
-            Entry::object()
+            \DI\object()
                 ->withScope(Scope::PROTOTYPE())
-                ->withProperty('property1', Entry::link('IntegrationTests\DI\Fixtures\Class2'))
-                ->withProperty('property2', Entry::link('IntegrationTests\DI\Fixtures\Interface1'))
-                ->withProperty('property3', Entry::link('namedDependency'))
-                ->withProperty('property4', Entry::link('foo'))
-                ->withProperty('property5', Entry::link('IntegrationTests\DI\Fixtures\LazyDependency'))
+                ->withProperty('property1', \DI\link('IntegrationTests\DI\Fixtures\Class2'))
+                ->withProperty('property2', \DI\link('IntegrationTests\DI\Fixtures\Interface1'))
+                ->withProperty('property3', \DI\link('namedDependency'))
+                ->withProperty('property4', \DI\link('foo'))
+                ->withProperty('property5', \DI\link('IntegrationTests\DI\Fixtures\LazyDependency'))
                 ->withConstructor(
-                    Entry::link('IntegrationTests\DI\Fixtures\Class2'),
-                    Entry::link('IntegrationTests\DI\Fixtures\Interface1'),
-                    Entry::link('IntegrationTests\DI\Fixtures\LazyDependency')
+                    \DI\link('IntegrationTests\DI\Fixtures\Class2'),
+                    \DI\link('IntegrationTests\DI\Fixtures\Interface1'),
+                    \DI\link('IntegrationTests\DI\Fixtures\LazyDependency')
                 )
-                ->withMethod('method1', Entry::link('IntegrationTests\DI\Fixtures\Class2'))
-                ->withMethod('method2', Entry::link('IntegrationTests\DI\Fixtures\Interface1'))
-                ->withMethod('method3', Entry::link('namedDependency'), Entry::link('foo'))
-                ->withMethod('method4', Entry::link('IntegrationTests\DI\Fixtures\LazyDependency'))
+                ->withMethod('method1', \DI\link('IntegrationTests\DI\Fixtures\Class2'))
+                ->withMethod('method2', \DI\link('IntegrationTests\DI\Fixtures\Interface1'))
+                ->withMethod('method3', \DI\link('namedDependency'), \DI\link('foo'))
+                ->withMethod('method4', \DI\link('IntegrationTests\DI\Fixtures\LazyDependency'))
         );
-        $compiledContainerPHP->set('IntegrationTests\DI\Fixtures\Class2', Entry::object());
-        $compiledContainerPHP->set('IntegrationTests\DI\Fixtures\Implementation1', Entry::object());
+        $compiledContainerPHP->set('IntegrationTests\DI\Fixtures\Class2', \DI\object());
+        $compiledContainerPHP->set('IntegrationTests\DI\Fixtures\Implementation1', \DI\object());
         $compiledContainerPHP->set(
             'IntegrationTests\DI\Fixtures\Interface1',
-            Entry::object('IntegrationTests\DI\Fixtures\Implementation1')
+            \DI\object('IntegrationTests\DI\Fixtures\Implementation1')
                 ->withScope(Scope::SINGLETON())
         );
-        $compiledContainerPHP->set('namedDependency', Entry::object('IntegrationTests\DI\Fixtures\Class2'));
-        $compiledContainerPHP->set('IntegrationTests\DI\Fixtures\LazyDependency', Entry::object()->lazy());
-        $compiledContainerPHP->set('alias', Entry::link('namedDependency'));
-        $compiledContainerPHP->set('factory', Entry::factory(function () {
+        $compiledContainerPHP->set('namedDependency', \DI\object('IntegrationTests\DI\Fixtures\Class2'));
+        $compiledContainerPHP->set('IntegrationTests\DI\Fixtures\LazyDependency', \DI\object()->lazy());
+        $compiledContainerPHP->set('alias', \DI\link('namedDependency'));
+        $compiledContainerPHP->set('factory', \DI\factory(function () {
             return 42;
         }));
 
