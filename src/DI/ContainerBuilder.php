@@ -17,6 +17,7 @@ use DI\Compiler\DefinitionCompiler\CallableDefinitionCompiler;
 use DI\Compiler\DefinitionCompiler\ClassDefinitionCompiler;
 use DI\Compiler\DefinitionCompiler\ValueDefinitionCompiler;
 use DI\Definition\DefinitionManager;
+use DI\Definition\Source\DefinitionSource;
 use Doctrine\Common\Cache\Cache;
 use InvalidArgumentException;
 use ProxyManager\Configuration;
@@ -50,11 +51,6 @@ class ContainerBuilder
     private $useAnnotations = true;
 
     /**
-     * @var boolean
-     */
-    private $definitionsValidation;
-
-    /**
      * @var Cache
      */
     private $cache;
@@ -76,6 +72,12 @@ class ContainerBuilder
      * @var ContainerInterface
      */
     private $wrapperContainer;
+
+    /**
+     * Source of definitions for the container.
+     * @var DefinitionSource[]
+     */
+    private $definitionSources = array();
 
     /**
      * Directory in which to store the compiled container. If null, no compilation.
@@ -109,11 +111,11 @@ class ContainerBuilder
     {
         // Definition manager
         $definitionManager = new DefinitionManager($this->useReflection, $this->useAnnotations);
-        if ($this->definitionsValidation) {
-            $definitionManager->setDefinitionsValidation($this->definitionsValidation);
-        }
         if ($this->cache) {
             $definitionManager->setCache($this->cache);
+        }
+        foreach ($this->definitionSources as $definitionSource) {
+            $definitionManager->addDefinitionSource($definitionSource);
         }
 
         // Proxy factory
@@ -171,19 +173,6 @@ class ContainerBuilder
     }
 
     /**
-     * Enables/disables the validation of the definitions
-     *
-     * By default, disabled
-     * @param bool $bool
-     * @return ContainerBuilder
-     */
-    public function setDefinitionsValidation($bool)
-    {
-        $this->definitionsValidation = $bool;
-        return $this;
-    }
-
-    /**
      * Enables the use of a cache for the definitions
      *
      * @param Cache $cache Cache backend to use
@@ -233,6 +222,19 @@ class ContainerBuilder
         $this->wrapperContainer = $otherContainer;
 
         return $this;
+    }
+
+    /**
+     * Add definitions to the container by adding a source of definitions.
+     *
+     * Do not add ReflectionDefinitionSource or AnnotationDefinitionSource manually, they should be
+     * handled with useReflection() and useAnnotations().
+     *
+     * @param DefinitionSource $definitionSource
+     */
+    public function addDefinitions(DefinitionSource $definitionSource)
+    {
+        $this->definitionSources[] = $definitionSource;
     }
 
     /**

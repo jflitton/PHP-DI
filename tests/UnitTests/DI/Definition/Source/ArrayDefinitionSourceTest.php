@@ -12,7 +12,6 @@ namespace UnitTests\DI\Definition\Source;
 use DI\Definition\CallableDefinition;
 use DI\Definition\ClassDefinition;
 use DI\Definition\Source\ArrayDefinitionSource;
-use DI\Entry;
 
 /**
  * Test class for ArrayDefinitionSource
@@ -81,7 +80,7 @@ class ArrayDefinitionSourceTest extends \PHPUnit_Framework_TestCase
     {
         $source = new ArrayDefinitionSource();
         $source->addDefinitions(array(
-            'foo' => Entry::object(),
+            'foo' => \DI\object(),
         ));
         /** @var $definition ClassDefinition */
         $definition = $source->getDefinition('foo');
@@ -97,12 +96,28 @@ class ArrayDefinitionSourceTest extends \PHPUnit_Framework_TestCase
         };
         $source = new ArrayDefinitionSource();
         $source->addDefinitions(array(
-            'foo' => Entry::factory($callable),
+            'foo' => \DI\factory($callable),
         ));
         /** @var CallableDefinition $definition */
         $definition = $source->getDefinition('foo');
         $this->assertInstanceOf('DI\Definition\CallableDefinition', $definition);
         $this->assertEquals('foo', $definition->getName());
         $this->assertEquals($callable, $definition->getCallable());
+    }
+
+    public function testLoadFromFile()
+    {
+        $source = new ArrayDefinitionSource(__DIR__ . '/Fixtures/definitions.php');
+
+        $definition = $source->getDefinition('foo');
+        $this->assertNotNull($definition);
+        $this->assertEquals('bar', $definition->getValue());
+        $this->assertInternalType('string', $definition->getValue());
+
+        /** @var $definition ClassDefinition */
+        $definition = $source->getDefinition('bim');
+        $this->assertInstanceOf('DI\Definition\ClassDefinition', $definition);
+        $this->assertEquals('bim', $definition->getName());
+        $this->assertEquals('bim', $definition->getClassName());
     }
 }

@@ -12,6 +12,7 @@ namespace DI\Definition;
 use DI\Definition\Source\AnnotationDefinitionSource;
 use DI\Definition\Source\ArrayDefinitionSource;
 use DI\Definition\Source\CombinedDefinitionSource;
+use DI\Definition\Source\DefinitionSource;
 use DI\Definition\Source\ReflectionDefinitionSource;
 use DI\Definition\Source\SimpleDefinitionSource;
 use Doctrine\Common\Cache\Cache;
@@ -60,15 +61,9 @@ class DefinitionManager
     private $annotationSource;
 
     /**
-     * @var ArrayDefinitionSource[]
+     * @var DefinitionSource[]
      */
-    private $arraySources = array();
-
-    /**
-     * Enables/disable the validation of the definitions
-     * @var bool
-     */
-    private $definitionsValidation = false;
+    private $otherSources = array();
 
     public function __construct($useReflection = true, $useAnnotations = true)
     {
@@ -151,6 +146,18 @@ class DefinitionManager
     }
 
     /**
+     * Add a source of definitions
+     *
+     * @param DefinitionSource $definitionSource
+     */
+    public function addDefinitionSource(DefinitionSource $definitionSource)
+    {
+        $this->otherSources[] = $definitionSource;
+
+        $this->updateCombinedSource();
+    }
+
+    /**
      * Add definitions from an array
      *
      * @param array $definitions
@@ -160,7 +167,7 @@ class DefinitionManager
         $arraySource = new ArrayDefinitionSource();
         $arraySource->addDefinitions($definitions);
 
-        $this->arraySources[] = $arraySource;
+        $this->otherSources[] = $arraySource;
 
         $this->updateCombinedSource();
     }
@@ -191,28 +198,6 @@ class DefinitionManager
     public function setCache(Cache $cache = null)
     {
         $this->cache = $cache;
-    }
-
-    /**
-     * Enables/disables the validation of the definitions
-     *
-     * By default, disabled
-     * @param bool $bool
-     */
-    public function setDefinitionsValidation($bool)
-    {
-        $this->definitionsValidation = (bool) $bool;
-    }
-
-    /**
-     * Returns the state of the validation of the definitions
-     *
-     * By default, disabled
-     * @return bool
-     */
-    public function getDefinitionsValidation()
-    {
-        return $this->definitionsValidation;
     }
 
     /**
@@ -262,8 +247,8 @@ class DefinitionManager
 
         $this->combinedSource->addSource($this->simpleSource);
 
-        // Traverses the array reverse
-        foreach (array_reverse($this->arraySources) as $arraySource) {
+        // Traverses the array reversed so that the latest added is first
+        foreach (array_reverse($this->otherSources) as $arraySource) {
             $this->combinedSource->addSource($arraySource);
         }
 
